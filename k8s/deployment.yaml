@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ibra-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ibra-app
+  template:
+    metadata:
+      labels:
+        app: ibra-app
+    spec:
+      containers:
+        - name: ibra-app
+          image: IMAGE_PLACEHOLDER
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ibra-app-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: ibra-app
+  ports:
+    - port: 80
+      targetPort: 80
