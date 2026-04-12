@@ -1,1 +1,532 @@
-<h1>Hello from Jenkins CI/CD Pipeline</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ibra App — Deployed via CI/CD Pipeline</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --surface: #111827;
+            --surface-2: #1a2332;
+            --border: #1e2d3d;
+            --text: #e2e8f0;
+            --text-dim: #64748b;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --green: #34d399;
+            --green-glow: rgba(52, 211, 153, 0.15);
+            --orange: #fb923c;
+            --red: #f87171;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Subtle grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeUp 0.6s ease;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--green-glow);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--green);
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #e2e8f0 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 18px;
+            color: var(--text-dim);
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Pipeline visualization */
+        .pipeline {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            animation: fadeUp 0.6s ease 0.1s both;
+        }
+
+        .pipeline-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+        }
+
+        .pipeline-stages {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stage {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .stage-box {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-width: 110px;
+        }
+
+        .stage-box:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .stage-box .icon {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .stage-box .label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        .stage-arrow {
+            color: var(--accent);
+            font-size: 18px;
+            padding: 0 6px;
+            opacity: 0.5;
+        }
+
+        /* Metrics grid */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+            animation: fadeUp 0.6s ease 0.2s both;
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .metric-card:hover {
+            border-color: var(--accent);
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        /* Tech stack */
+        .tech-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            animation: fadeUp 0.6s ease 0.3s both;
+        }
+
+        .section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .tech-item {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .tech-item .tech-icon {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .tech-item .tech-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .tech-item .tech-role {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* Terminal block */
+        .terminal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 32px;
+            animation: fadeUp 0.6s ease 0.4s both;
+        }
+
+        .terminal-bar {
+            background: var(--surface-2);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #ef4444; }
+        .terminal-dot.yellow { background: #eab308; }
+        .terminal-dot.green { background: #22c55e; }
+
+        .terminal-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-left: 8px;
+        }
+
+        .terminal-body {
+            padding: 20px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .terminal-body .prompt {
+            color: var(--green);
+        }
+
+        .terminal-body .cmd {
+            color: var(--text);
+        }
+
+        .terminal-body .output {
+            color: var(--text-dim);
+        }
+
+        .terminal-body .success {
+            color: var(--green);
+        }
+
+        .terminal-body .info {
+            color: var(--accent);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            animation: fadeUp 0.6s ease 0.5s both;
+        }
+
+        .footer-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .footer-role {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+        }
+
+        .footer-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(56, 189, 248, 0.3);
+            padding-bottom: 2px;
+            transition: border-color 0.3s;
+        }
+
+        .footer-link:hover {
+            border-color: var(--accent);
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .wrapper { padding: 40px 16px; }
+            .header h1 { font-size: 32px; }
+            .metrics { grid-template-columns: 1fr; }
+            .tech-grid { grid-template-columns: repeat(2, 1fr); }
+            .pipeline-stages { flex-direction: column; gap: 8px; }
+            .stage-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Header -->
+        <div class="header">
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                DEPLOYED ON EKS
+            </div>
+            <h1>Ibra App</h1>
+            <p>A fully automated CI/CD pipeline — from git push to production in 25 seconds, with monitoring and alerting.</p>
+        </div>
+
+        <!-- Pipeline -->
+        <div class="pipeline">
+            <div class="pipeline-label">Pipeline Flow</div>
+            <div class="pipeline-stages">
+                <div class="stage">
+                    <div class="stage-box">
+                        <div class="icon">📋</div>
+                        <div class="label">Checkout</div>
+                    </div>
+                    <div class="stage-arrow">&#9654;</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-box">
+                        <div class="icon">&#9989;</div>
+                        <div class="label">Test</div>
+                    </div>
+                    <div class="stage-arrow">&#9654;</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-box">
+                        <div class="icon">&#128230;</div>
+                        <div class="label">Build</div>
+                    </div>
+                    <div class="stage-arrow">&#9654;</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-box">
+                        <div class="icon">&#128640;</div>
+                        <div class="label">Push</div>
+                    </div>
+                    <div class="stage-arrow">&#9654;</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-box">
+                        <div class="icon">&#9781;</div>
+                        <div class="label">Deploy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-value">~25s</div>
+                <div class="metric-label">Pipeline Time</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">6</div>
+                <div class="metric-label">Automated Stages</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">2</div>
+                <div class="metric-label">HA Replicas</div>
+            </div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="tech-section">
+            <div class="section-title">Technology Stack</div>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <div class="tech-icon">&#9881;</div>
+                    <div class="tech-name">Jenkins</div>
+                    <div class="tech-role">CI/CD</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">&#128051;</div>
+                    <div class="tech-name">Docker</div>
+                    <div class="tech-role">Containers</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">&#9781;</div>
+                    <div class="tech-name">Kubernetes</div>
+                    <div class="tech-role">Orchestration</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">&#9729;</div>
+                    <div class="tech-name">AWS EKS</div>
+                    <div class="tech-role">Cloud</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">&#128200;</div>
+                    <div class="tech-name">Prometheus</div>
+                    <div class="tech-role">Monitoring</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">&#128202;</div>
+                    <div class="tech-name">Grafana</div>
+                    <div class="tech-role">Dashboards</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">&#128736;</div>
+                    <div class="tech-name">Maven</div>
+                    <div class="tech-role">Build</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">&#9878;</div>
+                    <div class="tech-name">Helm</div>
+                    <div class="tech-role">Packages</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal -->
+        <div class="terminal">
+            <div class="terminal-bar">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+                <span class="terminal-title">deployment-status</span>
+            </div>
+            <div class="terminal-body">
+                <div><span class="prompt">$</span> <span class="cmd">kubectl get deployment ibra-app</span></div>
+                <div><span class="output">NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READY&nbsp;&nbsp;UP-TO-DATE&nbsp;&nbsp;AVAILABLE</span></div>
+                <div><span class="success">ibra-app&nbsp;&nbsp;&nbsp;2/2&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2</span></div>
+                <br>
+                <div><span class="prompt">$</span> <span class="cmd">kubectl get svc ibra-app-service</span></div>
+                <div><span class="output">TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLUSTER-IP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTERNAL-IP</span></div>
+                <div><span class="info">LoadBalancer&nbsp;&nbsp;&nbsp;10.100.x.x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*.elb.amazonaws.com</span></div>
+                <br>
+                <div><span class="prompt">$</span> <span class="cmd">echo "Deployed via Jenkins CI/CD Pipeline"</span></div>
+                <div><span class="success">&#10003; Deployed via Jenkins CI/CD Pipeline</span></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-name">Ibrahim</div>
+            <div class="footer-role">DevOps Engineer</div>
+            <a href="https://github.com/ibrahim-2010/cicd_jenkins" class="footer-link" target="_blank">github.com/ibrahim-2010/cicd_jenkins</a>
+        </div>
+    </div>
+</body>
+</html>
+
